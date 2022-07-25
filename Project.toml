@@ -3,6 +3,10 @@ uuid = "b646ace3-06b7-4391-bbb4-8240a695590f"
 authors = ["Thomas Christensen <tchr@mit.edu> and contributors"]
 version = "0.1.0"
 
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+RowEchelon = "af85af4c-bcd5-5d23-b03a-a909639aa875"
+
 [compat]
 julia = "1"
 
