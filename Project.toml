@@ -1,0 +1,13 @@
+name = "Neumann"
+uuid = "b646ace3-06b7-4391-bbb4-8240a695590f"
+authors = ["Thomas Christensen <tchr@mit.edu> and contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
