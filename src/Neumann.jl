@@ -3,7 +3,7 @@ module Neumann
 using LinearAlgebra: checksquare, I, nullspace
 using RowEchelon: rref, rref!
 using Combinatorics: permutations
-export neumann_relations
+export neumann
 
 # ---------------------------------------------------------------------------------------- #
 
@@ -88,14 +88,14 @@ end
 # ---------------------------------------------------------------------------------------- #
 
 """
-Return the matrix of relations used by `neumann_relations`.
+Return the matrix of relations used by `neumann`.
 """
-function neumann(ops,
-                 Nᵛ::Val{N}=Val(3), Dᵛ::Val{D}=Val(3);
-                 kleinmann::Bool=false,
-                 sparsify::Bool=true,
-                 rref_tol::Union{Nothing,Float64}=1e-11,
-                 nullspace_kws...) where {N, D}
+function neumann_matrix(ops,
+                        Nᵛ::Val{N}=Val(3), Dᵛ::Val{D}=Val(3);
+                        kleinmann::Bool=false,
+                        sparsify::Bool=true,
+                        rref_tol::Union{Nothing,Float64}=1e-11,
+                        nullspace_kws...) where {N, D}
     constraint_eqs = mapfoldl(vcat, ops) do op
         neumann_constraint(op, Nᵛ, Dᵛ)
     end
@@ -106,10 +106,14 @@ function neumann(ops,
 
     return sparsify ? poormans_sparsification(A; rref_tol) : A
 end
-function neumann(op::AbstractMatrix{<:Real}, Nᵛ::Val=Val(3), Dᵛ::Val=Val(3); kws...)
-    neumann(tuple(op), Nᵛ, Dᵛ; kws...)
+function neumann_matrix(op::AbstractMatrix{<:Real}, Nᵛ::Val=Val(3), Dᵛ::Val=Val(3); kws...)
+    neumann_matrix(tuple(op), Nᵛ, Dᵛ; kws...)
 end
 
+"""
+Given a matrix, obtained from `neumann_matrix`, extract corresponding relations in a
+human-readable format.
+"""
 function extract_relations(A::AbstractMatrix{<:Real},
                            Nᵛ::Val{N}=Val(3), Dᵛ::Val{D}=Val(3);
                            atol=1e-10) where {N, D}
@@ -139,7 +143,7 @@ function extract_relations(A::AbstractMatrix{<:Real},
 end
 
 """
-    neumann_relations(ops, N::Integer; kws...)  -->  Vector{String}
+    neumann(ops, N::Integer; kws...)  -->  Vector{String}
 
 Return the symmetry-constraints among components of a tensor imposed by the set of point
 group symmetries in `ops`. The tensor order is provided via `N`. `ops` can be either a
@@ -181,7 +185,7 @@ Second harmonic generation is forbidden in inversion symmetric materials
 julia> using Neumann
 julia> N = 3 # second-harmonic generation → third-rank tensor
 julia> inversion = [-1 0 0; 0 -1 0; 0 0 -1]
-julia> neumann_relations(inversion, N)
+julia> neumann(inversion, N)
 1-element Vector{String}:
  "xxx = yxx = zxx = xyx = yyx = z" ⋯ 102 bytes ⋯ "yz = zyz = xzz = yzz = zzz = 0"
 ```
@@ -192,7 +196,7 @@ group symmetry of D₃ (321):
 julia> using Crystalline
 julia> ops = generators("321", PointGroup{3}) # obtain generators of D₃ (321) from Crystalline
 julia> ops .= cartesianize.(ops, Ref(crystal(1,1,1,π/2,π/2,2π/3))); # convert to a Cartesian basis
-julia> neumann_relations(ops, N)
+julia> neumann(ops, N)
 5-element Vector{String}:
  "xxx = -yyx = -yxy = -xyy"
  "zyx = -zxy"
@@ -201,18 +205,17 @@ julia> neumann_relations(ops, N)
  "yxx = zxx = xyx = xzx = zzx = x" ⋯ 41 bytes ⋯ "yyz = zyz = xzz = yzz = zzz = 0"
 ```
 """
-function neumann_relations(ops, Nᵛ::Val{N}, Dᵛ::Val{D};
-                           atol::Real=1e-10, neumann_kws...) where {N, D}
+function neumann(ops, Nᵛ::Val{N}, Dᵛ::Val{D}; atol::Real=1e-10, neumann_kws...) where {N, D}
     if haskey(neumann_kws, :rref_tol)
         if atol ≤ something(neumann_kws[:rref_tol], 0.0)
             error("`atol` must exceed `rref_tol`: increase `atol` or reduce `rref_tol`")
         end
     end
 
-    A = neumann(ops, Nᵛ, Dᵛ; neumann_kws...)
+    A = neumann_matrix(ops, Nᵛ, Dᵛ; neumann_kws...)
     return extract_relations(A, Nᵛ, Dᵛ; atol)
 end
-function neumann_relations(ops, N::Integer=3; atol::Real=1e-10, neumann_kws...)
+function neumann(ops, N::Integer=3; atol::Real=1e-10, neumann_kws...)
     # determine dimension of provided operators
     D = if ops isa AbstractMatrix{<:Real} # just a single operator provided
         minimum(size(ops))
@@ -224,7 +227,7 @@ function neumann_relations(ops, N::Integer=3; atol::Real=1e-10, neumann_kws...)
         D′
     end
 
-    return neumann_relations(ops, Val(N), Val(D); atol, neumann_kws...)
+    return neumann(ops, Val(N), Val(D); atol, neumann_kws...)
 end
 
 # ---------------------------------------------------------------------------------------- #
