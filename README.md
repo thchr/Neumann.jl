@@ -83,13 +83,19 @@ Additional information is available in the documentation of `neumann_relations` 
 
 ### Kleinmann symmetry
 
-For low-frequency harmonic generation, a response tensor may additionally exhibit [Kleinmann symmetry](https://en.wikipedia.org/wiki/Kleinman_symmetry). For e.g., second-harmonic generation, this implies that the response tensor exhibits the index permutation symmetry $A_{ijk}(\omega_3; \omega_1+\omega_2) = A_{ikj}(\omega_3; \omega_1+\omega_2)$ with $\omega_3 = \omega_1+\omega_2$ and $\omega_{1,2,3}$ small relative to all intrinsic frequency-scales of the material.
+For low-frequency harmonic generation, a response tensor may additionally exhibit [Kleinmann symmetry](https://en.wikipedia.org/wiki/Kleinman_symmetry). For e.g., second-harmonic generation, this implies that the response tensor exhibits the index permutation symmetry $A_{ijk}(\omega_3; \omega_1+\omega_2) = A_{ikj}(\omega_3; \omega_1+\omega_2)$ with $\omega_3 = \omega_1+\omega_2$ and $\omega_{1,2,3}$ assumed small relative to any intrinsic frequency scales of the material.
 More generally, we may consider Kleinmann-like permutation symmetries of the form $A_{ij\ldots k} = A_{i P(j\ldots k)}$ with $P(j\ldots k)$ denoting any permutation of the indices $j\ldots k$.
 
 To incorporate Kleinmann symmetry, the `kleinmann = true` keyword argument can be passed to `neumann_relations`.
 For instance, in $C_4$, the addition of Kleinmann symmetry reduces the number of independent components from 7 to 4:
 ```jl
 julia> neumann_relations(ops_C₄, N; kleinmann = true)  # C₄ symmetry + Kleinmann symmetry
+5-element Vector{String}:
+ "zxx = zyy"
+ "xzx = yzy = xxz = yyz"
+ "yzx = -xzy = yxz = -xyz"
+ "zzz"
+ "xxx = yxx = xyx = yyx = zyx = z" ⋯ 35 bytes ⋯ "zzy = zxz = zyz = xzz = yzz = 0"
 ```
 While, in $C_3$, Kleinmann symmetry reduces the number of independent components from 9 to 6:
 ```jl
