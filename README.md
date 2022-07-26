@@ -35,7 +35,7 @@ Neumann's principle simply requires that $gA_{ij\ldots k} = A_{ij\ldots k}$ for 
 
 Neumann.jl exports a single function, `neumann`, which satisfies the linear relations imposed by Neumann's principle by solving for the null space of the associated equation system. The null space imposes relations between certain components of the response tensor and forbids (i.e., requires vanishing value of) other components.
 
-As example, any odd-rank tensor vanishes completely under inversion symmetry:
+As an example, any odd-rank tensor vanishes completely under inversion symmetry:
 ```jl
 julia> using Neumann
 julia> inversion = [-1 0 0; 0 -1 0; 0 0 -1]
@@ -45,7 +45,7 @@ julia> neumann(inversion, N)
  "xxx = yxx = zxx = xyx = yyx = z" ⋯ 102 bytes ⋯ "yz = zyz = xzz = yzz = zzz = 0"
 ```
 
-At a more advanced level, we can consider e.g. the constraints imposed by 4-fold rotation symmetry ($C_4$ in Schoenflies notation; 4 in Hermann-Mauguinn notation). For convenience, we can load the relevant generators of the group from [Crystalline.jl](https://github.com/thchr/Crystalline.jl):
+At a more advanced level, we can consider e.g., the constraints imposed by 4-fold rotation symmetry ($C_4$ in Schoenflies notation; 4 in Hermann-Mauguinn notation). For convenience, we can load the relevant generators of the group from [Crystalline.jl](https://github.com/thchr/Crystalline.jl):
 
 ```jl
 julia> using Crystalline
