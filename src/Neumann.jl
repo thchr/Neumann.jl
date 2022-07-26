@@ -2,7 +2,7 @@ module Neumann
 
 using LinearAlgebra: checksquare, I, nullspace
 using RowEchelon: rref, rref!
-
+using Combinatorics: permutations
 export neumann_relations
 
 # ---------------------------------------------------------------------------------------- #
@@ -12,16 +12,16 @@ const CHARS = ('x','y','z','w')
 # ---------------------------------------------------------------------------------------- #
 
 """
-Build a matrix representation of the right-hand side of the constraint χᵢⱼₖ = gᵢₗgⱼₖgₗₘχₗₘₙ
-(here, for third-rank tensor χ) associated with Neumann's principle.
+Build a matrix representation of the constraint Aᵢⱼ…ₖ = gᵢₗ g⁻¹ⱼₖ ⋯ g⁻¹ₗₘ Aₗₘ…ₙ required by
+Neumann's principle.
 """
 function neumann_constraint(g, 
                             #=tensor_order=#Nᵛ::Val{N},
                             #=operator_dim=#  ::Val{D}) where {N, D}
 
     isinteger(N) && N ≥ 1 || error("tensor order must be an integer greater than 0")
-    isinteger(D)  && D ≥ 1  || error("operator dimension must be an integer greater than 0")
-    minimum(size(g)) == D   || error("incompatible dimensions of `g` and `D`")
+    isinteger(D) && D ≥ 1 || error("operator dimension must be an integer greater than 0")
+    minimum(size(g)) == D || error("incompatible dimensions of `g` and `D`")
     
     g⁻¹ = inv(g)
     constraint_block = zeros(D^N, D^N)
@@ -34,13 +34,38 @@ function neumann_constraint(g,
                 v *= g⁻¹[lmns[idx], ijks[idx]]
                 # equivalent to `g[ijks[idx], lmns[idx]]` if g's basis is orthonormal
             end
-            constraint_block[q,p] = v
+            constraint_block[q,p] = -v
         end
+        constraint_block[q,q] += 1.0
     end
 
     return constraint_block
 end
 
+# TODO: Implement Kleinmann's symmetry. Seems it could generalize to any order tensor,
+#       assuming we interpret it as the "freedom" to shuffle the `N-1` last indices
+function kleinmann_constraint(Nᵛ::Val{N}, ::Val{D}) where {N, D}
+    # cover all relations of the kind ijk = ikj
+    constraints = Vector{Vector{Float64}}()
+    q′ = 0
+    for (q,ijks) in enumerate(CartesianIndices(ntuple(_->1:D, Nᵛ)))
+        i = ijks[1]
+        pᵢ = (i-1)*D^(N-1)
+        # iterate over the unique permutations of `jk…`
+        jks_perms = unique!(sort!(collect(permutations(Tuple(ijks)[2:N])))) # TODO: allocates...
+        for kjs in jks_perms
+            # determine corresponding index of kj-permutation in column-representation
+            p = 1 + pᵢ + sum(1:length(kjs)) do idx
+                            (kjs[idx]-1)*D^(N-1-idx)
+                         end
+            q′ += 1 # row-index corresponding to the q′th constraint
+            push!(constraints, zeros(D^N))
+            constraints[q′][q] = 1.0
+            constraints[q′][p] += -1.0
+        end
+    end
+    return mapreduce(transpose, vcat, constraints)
+end
 # ---------------------------------------------------------------------------------------- #
 
 function xyz_sorting(Nᵛ::Val{N}, ::Val{D}) where {N, D}
@@ -67,12 +92,15 @@ Return the matrix of relations used by `neumann_relations`.
 """
 function neumann(ops,
                  Nᵛ::Val{N}=Val(3), Dᵛ::Val{D}=Val(3);
+                 kleinmann::Bool=false,
                  sparsify::Bool=true,
                  rref_tol::Union{Nothing,Float64}=1e-11,
                  nullspace_kws...) where {N, D}
-    Id = I(D^N)
     constraint_eqs = mapfoldl(vcat, ops) do op
-        Id - neumann_constraint(op, Nᵛ, Dᵛ)
+        neumann_constraint(op, Nᵛ, Dᵛ)
+    end
+    if kleinmann
+        constraint_eqs = vcat(constraint_eqs, kleinmann_constraint(Nᵛ, Dᵛ))
     end
     A = nullspace(constraint_eqs; nullspace_kws...)
 
@@ -131,6 +159,9 @@ generally recommend supplying operators in a Cartesian basis for ease of interpr
 
 ## Keyword arguments `kws`
 
+- `kleinmann` (default, `false`): whether to incorporate Kleinmann's symmetry, i.e. whether
+  to enforce that `A[i,j,k,…] = A[i,perm(j,k,…)...]` with `perm(j,k,…)` denoting all unique
+  permutations of `[j,k,…]`. Relevant e.g., to low-frequency second-harmonic generation.
 - `sparsify` (default, `true`): whether to attempt to sparsify relations between allowed
   nonzero components of the response tensor. A "poor man's" approximation of matrix
   sparsification is carried out using the reduced row echelon form.
@@ -210,5 +241,10 @@ function poormans_sparsification(A; rref_tol::Union{Nothing,Float64}=1e-11)
     end
     return return transpose(rref(transpose(A)))
 end
+
+# ---------------------------------------------------------------------------------------- #
+
+# cartesian rotation matrix for a rotation by angle θ around the z-axis
+rotation_matrix(θ) = [cos(θ) -sin(θ) 0; sin(θ) cos(θ) 0; 0 0 1]
 
 end # module
