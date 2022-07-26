@@ -5,7 +5,7 @@
 This package provides a single function `neumann` which applies Neumann's principle to determine the forbidden and allowed components of a response tensor of arbitrary order, subject to a finite set of point group symmetry constraints.
 
 ## Installation
-The package can be installed via Julia's package prompt (entered by typing `]` at the REPL) and subsequently imported by calling:
+The package can be installed via [Julia](https://julialang.org/)'s package prompt (entered by typing `]` at the REPL) and subsequently imported by calling:
 ```jl
 pkg> add https://github.com/thchr/Neumann.jl
 julia> using Neumann
