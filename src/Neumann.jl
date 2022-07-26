@@ -16,20 +16,23 @@ Build a matrix representation of the right-hand side of the constraint χᵢⱼ�
 (here, for third-rank tensor χ) associated with Neumann's principle.
 """
 function neumann_constraint(g, 
-                            #=tensor_order=#TDⱽ::Val{TD}=Val(3),
-                            #=operator_dim=#   ::Val{D} =Val(3)) where {TD, D}
+                            #=tensor_order=#Nᵛ::Val{N},
+                            #=operator_dim=#  ::Val{D}) where {N, D}
 
-    isinteger(TD) && TD ≥ 1 || error("tensor order must be an integer greater than 0")
+    isinteger(N) && N ≥ 1 || error("tensor order must be an integer greater than 0")
     isinteger(D)  && D ≥ 1  || error("operator dimension must be an integer greater than 0")
     minimum(size(g)) == D   || error("incompatible dimensions of `g` and `D`")
     
-    constraint_block = zeros(D^TD,D^TD)
-    for (q,ijks) in enumerate(CartesianIndices(ntuple(_->1:D, TDⱽ)))
-        for (p,lmns) in enumerate(CartesianIndices(ntuple(_->1:D, TDⱽ)))
-            # compute g[i,l]*g[j,m]*g[k,n]...
+    g⁻¹ = inv(g)
+    constraint_block = zeros(D^N, D^N)
+    for (q,ijks) in enumerate(CartesianIndices(ntuple(_->1:D, Nᵛ)))
+        for (p,lmns) in enumerate(CartesianIndices(ntuple(_->1:D, Nᵛ)))
+            # compute gᵢₗ g⁻¹ₘⱼ g⁻¹ₙₖ … = gᵢₗ gⱼₘ gₖₙ …: we use the former variant in order to
+            # be able to treat operators provided in a non-orthonormal basis (where g⁻¹≠gᵀ)
             v = g[ijks[1], lmns[1]]
-            for idx = 2:TD
-                v *= g[ijks[idx], lmns[idx]]
+            for idx = 2:N
+                v *= g⁻¹[lmns[idx], ijks[idx]]
+                # equivalent to `g[ijks[idx], lmns[idx]]` if g's basis is orthonormal
             end
             constraint_block[q,p] = v
         end
@@ -40,10 +43,10 @@ end
 
 # ---------------------------------------------------------------------------------------- #
 
-function xyz_sorting(TDᵛ::Val{TD}=Val(3), ::Val{D}=Val(3)) where {TD, D}
+function xyz_sorting(Nᵛ::Val{N}, ::Val{D}) where {N, D}
     D > 4 && error("does not support dimensions higher than 4")
-    xyzs = Vector{String}(undef, D^TD)
-    for (q,ijks) in enumerate(CartesianIndices(ntuple(_->1:D, TDᵛ)))
+    xyzs = Vector{String}(undef, D^N)
+    for (q,ijks) in enumerate(CartesianIndices(ntuple(_->1:D, Nᵛ)))
         xyzs[q] = xyz_string(Tuple(ijks))
     end
     return xyzs
@@ -63,26 +66,26 @@ end
 Return the matrix of relations used by `neumann_relations`.
 """
 function neumann(ops,
-                 TDᵛ::Val{TD}=Val(3), Dᵛ::Val{D}=Val(3);
+                 Nᵛ::Val{N}=Val(3), Dᵛ::Val{D}=Val(3);
                  sparsify::Bool=true,
                  rref_tol::Union{Nothing,Float64}=1e-11,
-                 nullspace_kws...) where {TD, D}
-    Id = I(D^TD)
+                 nullspace_kws...) where {N, D}
+    Id = I(D^N)
     constraint_eqs = mapfoldl(vcat, ops) do op
-        Id - neumann_constraint(op, TDᵛ, Dᵛ)
+        Id - neumann_constraint(op, Nᵛ, Dᵛ)
     end
     A = nullspace(constraint_eqs; nullspace_kws...)
 
     return sparsify ? poormans_sparsification(A; rref_tol) : A
 end
-function neumann(op::AbstractMatrix{<:Real}, TDᵛ::Val=Val(3), Dᵛ::Val=Val(3); kws...)
-    neumann(tuple(op), TDᵛ, Dᵛ; kws...)
+function neumann(op::AbstractMatrix{<:Real}, Nᵛ::Val=Val(3), Dᵛ::Val=Val(3); kws...)
+    neumann(tuple(op), Nᵛ, Dᵛ; kws...)
 end
 
 function extract_relations(A::AbstractMatrix{<:Real},
-                           TDᵛ::Val{TD}=Val(3), Dᵛ::Val{D}=Val(3);
-                           atol=1e-10) where {TD, D}
-    xyzs = xyz_sorting(TDᵛ, Dᵛ)
+                           Nᵛ::Val{N}=Val(3), Dᵛ::Val{D}=Val(3);
+                           atol=1e-10) where {N, D}
+    xyzs = xyz_sorting(Nᵛ, Dᵛ)
 
     strs = Vector{String}(undef, size(A,2)+1)
     for (i,col) in enumerate(eachcol(A))
@@ -108,25 +111,46 @@ function extract_relations(A::AbstractMatrix{<:Real},
 end
 
 """
-    neumann_relations(ops, ::Val{TD}, ::Val{D})
+    neumann_relations(ops, N::Integer; kws...)  -->  Vector{String}
 
-Return the free components of a tensor in Cartesian indexing, subject to the constraints of
-point group symmetries in `ops`. The tensor order is provided via `Val{TD}` (default,
-`TD=3`).
-The provided operators must be given in a Cartesian basis.
+Return the symmetry-constraints among components of a tensor imposed by the set of point
+group symmetries in `ops`. The tensor order is provided via `N`. `ops` can be either a
+single symmetry operation (provided as an `AbstractMatrix`) or any iterable of symmetry
+operations.
 
-The assumed spatial dimensionality - which must be consistent with the dimension of the
-provided operators `ops` - must be supplied as a `Val(D)` (default, `D=3`).
+The obtained relations are returned as a `Vector{String}`, with each element of this vector
+giving either:
+
+1. a free, nonzero component of the tensor (e.g., "xxx"),
+2. free, nonzero - but interrelated - components of the tensor (e.g., "xxx = yyy"),
+3. forbidden, zero components of the tensor (e.g., "xyz = xzy = 0").
+
+Note that if the provided operators are not given in a Cartesian basis, the returned
+relations among tensor components will match the basis of the provided operators: we
+generally recommend supplying operators in a Cartesian basis for ease of interpretation.
+
+## Keyword arguments `kws`
+
+- `sparsify` (default, `true`): whether to attempt to sparsify relations between allowed
+  nonzero components of the response tensor. A "poor man's" approximation of matrix
+  sparsification is carried out using the reduced row echelon form.
+- `rref_tol` (default, `1e-11`): the absolute tolerance used during row echelon reduction
+  in sparsification. As the row echelon form is numerically unstable for larger matrices,
+  it may be necessary to increase this tolerance for larger tensor orders. Set to `nothing`
+  to use a tolerance of zero.
+- `atol` (default, `1e-10`): the absolute tolerance used in assessing whether a term in a
+  relation is considered vanishing or not (and similarly used to assess whether a term has
+  integer coefficient). Must be smaller than `rref_tol` (if not nothing).
+- `nullspace_kws` (default, empty): keyword arguments passed to `nullspace`.
 
 ## Examples
 
 Second harmonic generation is forbidden in inversion symmetric materials
 ```
-julia> using Neumann, Crystalline
-
-julia> TD = 3 # second-harmonic generation → third-rank tensor
-julia> inversion = S"-x,-y,-z"
-julia> neumann_relations(rotation(inversion), Val(TD))
+julia> using Neumann
+julia> N = 3 # second-harmonic generation → third-rank tensor
+julia> inversion = [-1 0 0; 0 -1 0; 0 0 -1]
+julia> neumann_relations(inversion, N)
 1-element Vector{String}:
  "xxx = yxx = zxx = xyx = yyx = z" ⋯ 102 bytes ⋯ "yz = zyz = xzz = yzz = zzz = 0"
 ```
@@ -134,20 +158,42 @@ julia> neumann_relations(rotation(inversion), Val(TD))
 But several components of the second-harmonic response are allowed under e.g. the point
 group symmetry of D₃ (321):
 ```
-julia> ops = generators("321", PointGroup{3}) # get relevant operators from Crystalline
+julia> using Crystalline
+julia> ops = generators("321", PointGroup{3}) # obtain generators of D₃ (321) from Crystalline
 julia> ops .= cartesianize.(ops, Ref(crystal(1,1,1,π/2,π/2,2π/3))); # convert to a Cartesian basis
-julia> println.(neumann_relations(ops));
-yxx = xyx = yyx = xxy = yxy = xyy
-zyx = -zxy
-yzx = -xzy
-yxz = -xyz
-xxx = zxx = xzx = zzx = yyy = zyy = yzy = zzy = xxz = zxz = yyz = zyz = xzz = yzz = zzz = 0
+julia> neumann_relations(ops, N)
+5-element Vector{String}:
+ "xxx = -yyx = -yxy = -xyy"
+ "zyx = -zxy"
+ "yzx = -xzy"
+ "yxz = -xyz"
+ "yxx = zxx = xyx = xzx = zzx = x" ⋯ 41 bytes ⋯ "yyz = zyz = xzz = yzz = zzz = 0"
 ```
 """
-function neumann_relations(ops, TDᵛ::Val{TD}=Val(3), Dᵛ::Val{D}=Val(3);
-                           atol::Real=1e-10, neumann_kws...) where {TD, D}
-    A = neumann(ops, TDᵛ, Dᵛ; neumann_kws...)
-    return extract_relations(A, TDᵛ, Dᵛ; atol)
+function neumann_relations(ops, Nᵛ::Val{N}, Dᵛ::Val{D};
+                           atol::Real=1e-10, neumann_kws...) where {N, D}
+    if haskey(neumann_kws, :rref_tol)
+        if atol ≤ something(neumann_kws[:rref_tol], 0.0)
+            error("`atol` must exceed `rref_tol`: increase `atol` or reduce `rref_tol`")
+        end
+    end
+
+    A = neumann(ops, Nᵛ, Dᵛ; neumann_kws...)
+    return extract_relations(A, Nᵛ, Dᵛ; atol)
+end
+function neumann_relations(ops, N::Integer=3; atol::Real=1e-10, neumann_kws...)
+    # determine dimension of provided operators
+    D = if ops isa AbstractMatrix{<:Real} # just a single operator provided
+        minimum(size(ops))
+    else                                  # iterator/vector/tuple of provided operators
+        D′ = minimum(size(first(ops)))
+        if any(op->minimum(size(op)) != D′, ops[2:end])
+            error("mismatched dimensions of provided operators")
+        end
+        D′
+    end
+
+    return neumann_relations(ops, Val(N), Val(D); atol, neumann_kws...)
 end
 
 # ---------------------------------------------------------------------------------------- #
