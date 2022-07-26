@@ -3,12 +3,9 @@
 This package provides a single function `extract_neumann` which applies Neumann's principle to determine the forbidden and allowed components of a response tensor of arbitrary order, subject to a finite set of point group symmetry constraints.
 
 ## Installation
-The package can be installed via Julia's package prompt (entered by typing `]` at the REPL):
+The package can be installed via Julia's package prompt (entered by typing `]` at the REPL) and subsequently imported by calling:
 ```jl
 pkg> add https://github.com/thchr/Neumann.jl
-```
-The package can subsequently be imported by calling:
-```jl
 julia> using Neumann
 ```
 
