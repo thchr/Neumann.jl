@@ -2,7 +2,7 @@
 
 [![Documentation (stable)][docs-stable-img]][docs-stable-url] [![Build status][ci-status-img]][ci-status-url] [![Coverage][coverage-img]][coverage-url]
 
-This package provides a single function `extract_neumann` which applies Neumann's principle to determine the forbidden and allowed components of a response tensor of arbitrary order, subject to a finite set of point group symmetry constraints.
+This package provides a single function `neumann` which applies Neumann's principle to determine the forbidden and allowed components of a response tensor of arbitrary order, subject to a finite set of point group symmetry constraints.
 
 ## Installation
 The package can be installed via Julia's package prompt (entered by typing `]` at the REPL) and subsequently imported by calling:
@@ -33,7 +33,7 @@ Neumann's principle simply requires that $gA_{ij\ldots k} = A_{ij\ldots k}$ for 
 
 ## Examples
 
-Neumann.jl exports a single function, `extract_neumann`, which satisfies the linear relations imposed by Neumann's principle by solving for the null space of the associated equation system. The null space imposes relations between certain components of the response tensor and forbids (i.e., requires vanishing value of) other components.
+Neumann.jl exports a single function, `neumann`, which satisfies the linear relations imposed by Neumann's principle by solving for the null space of the associated equation system. The null space imposes relations between certain components of the response tensor and forbids (i.e., requires vanishing value of) other components.
 
 As example, any odd-rank tensor vanishes completely under inversion symmetry:
 ```jl
