@@ -64,7 +64,7 @@ function kleinmann_constraint(Nᵛ::Val{N}, ::Val{D}) where {N, D}
             end
         end
     end
-    return mapreduce(transpose, vcat, constraints)
+    return mapreduce(transpose, vcat, constraints; init=Matrix{Float64}(undef, 0, D^N))
 end
 # ---------------------------------------------------------------------------------------- #
 
@@ -218,7 +218,7 @@ function neumann_relations(ops, N::Integer=3; atol::Real=1e-10, neumann_kws...)
         minimum(size(ops))
     else                                  # iterator/vector/tuple of provided operators
         D′ = minimum(size(first(ops)))
-        if any(op->minimum(size(op)) != D′, ops[2:end])
+        if any(op->minimum(size(op)) != D′, ops)
             error("mismatched dimensions of provided operators")
         end
         D′

@@ -48,7 +48,7 @@ At a more advanced level, we can consider e.g. the constraints imposed by 4-fold
 ```jl
 julia> using Crystalline
 julia> ops_C₄ = generators("4", PointGroup{3}) # generators of the group C₄ (4)
-julia> neumann_relations(opsC₄, N)
+julia> neumann_relations(ops_C₄, N)
 8-element Vector{String}:
  "zxx = zyy"
  "zyx = -zxy"
