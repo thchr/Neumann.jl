@@ -11,18 +11,23 @@ julia> using Neumann
 
 ## Theory
 
-Neumann's principle states that any macroscopic response tensor must transform into itself under all microscopic (isogonal) point group symmetries $P$ of the associated physical system [1]. Equivalently, the response tensor must be invariant under the elements of the group $P$.
+Neumann's principle states that any macroscopic response tensor must transform into itself under all microscopic (isogonal) point group symmetries $P$ of the associated physical system.<sup>[1]</sup> Equivalently, the response tensor must be invariant under the elements of the group $P$.
 
-[1] See e.g. the International Tables of Crystallography, Volume A (2016), [Section 3.2.2.1.1](https://onlinelibrary.wiley.com/iucr/itc/Ac/ch3o2v0001/sec3o2o2o1o1/).
+> <sup>[1]</sup> See e.g. the International Tables of Crystallography, Volume A (2016), [Section 3.2.2.1.1](https://onlinelibrary.wiley.com/iucr/itc/Ac/ch3o2v0001/sec3o2o2o1o1/).
 
-We consider response tensors $A_{ij\ldots k}$ of order $n$ connecting an induced response $w_i$ to the product of $n$ perturbations $\{v_j^{(1)}, \ldots, v_k^{(n)}\}$, such that $v_i = B_{ij\ldots k}v_j^{(1)}\cdotsv_k^{(n)}$. Under a symmetry operation $g$, the response tensor transforms to:
+We consider response tensors $A_{ij\ldots k}$ of order $N$ connecting an induced response $w_i$ to the product of $N$ perturbations $\{v_j^{(1)}, \ldots, v_k^{(N)}\}$, i.e.,
+
+$$w_i = B_{ij\ldots k}v_j^{(1)}\cdots v_k^{(N)}.$$
+
+Under a symmetry operation $g$, the response tensor transforms according to:
 
 $$
-(gA)_{ij\ldots k} = g_{il}g^{-1}_{mj}\cdots g^{-1}_{nk} A_{ij\ldots k}
+gA_{ij\ldots k} = g_{il} g_{mj}^{-1} \cdots g_{nk}^{-1} A_{lm\ldots n}.
 $$
-If $g$ is provided in an orthonormal basis we have $g^{-1} = g^{\mathrm{T}}$, and the transformation rule simplifies to $A_{ij\ldots k}' = g_{il}g_{jm}\cdots g_{kn} A_{ij\ldots k}$.
 
-Neumann's principle simply states that $(gA)_{ij\ldots k} = A_{ij\ldots k}$ for every element $g$ in the isogonal point group of the underlying system.
+If $g$ is provided in an orthonormal basis we have $g^{-1} = g^{\mathrm{T}}$, and the transformation rule simplifies to $gA_{ij\ldots k} = g_{il}g_{jm}\cdots g_{kn} A_{lm\ldots n}$.
+
+Neumann's principle simply requires that $gA_{ij\ldots k} = A_{ij\ldots k}$ for every element $g$ in the isogonal point group $P$ of the underlying system.
 
 ## Examples
 
@@ -32,8 +37,8 @@ As example, any odd-rank tensor vanishes completely under inversion symmetry:
 ```jl
 julia> using Neumann
 julia> inversion = [-1 0 0; 0 -1 0; 0 0 -1]
-julia> TD = 3 # tensor order (e.g., corresponding to second-harmonic generation)
-julia> extract_neumann(inversion, TD)
+julia> N = 3 # tensor order (e.g., corresponding to second-harmonic generation)
+julia> extract_neumann(inversion, N)
 1-element Vector{String}:
  "xxx = yxx = zxx = xyx = yyx = z" ⋯ 102 bytes ⋯ "yz = zyz = xzz = yzz = zzz = 0"
 ```
@@ -42,8 +47,8 @@ At a more advanced level, we can consider e.g. the constraints imposed by 4-fold
 
 ```jl
 julia> using Crystalline
-julia> ops = generators("4", PointGroup{3}) # the generators of the group C₄ (4 in Hermann-Mauguinn notation)
-julia> neumann_relations(ops, TD)
+julia> ops = generators("4", PointGroup{3}) # generators of the group C₄ (4)
+julia> neumann_relations(ops, N)
 8-element Vector{String}:
  "zxx = zyy"
  "zyx = -zxy"
@@ -57,10 +62,10 @@ julia> neumann_relations(ops, TD)
 
 In the above example, the symmetry operations are already returned in a Cartesian basis. For several symmetry settings of interest, this is not usually the case. In such cases, we suggest that the generators returned by Crystalline first be converted to a Cartesian setting. As example, we may consider the case of 3-fold rotation symmetry ($C_3$ in Schoenflies notation; 3 in Hermann-Mauguinn notation):
 ```jl
-julia> ops = generators("3", PointGroup{3})
-julia> Rs = crystal(1,1,1,π/2,π/2,2π/3)# a conventional coordinate system for a hexagonal system
+julia> ops = generators("3", PointGroup{3}) # generators of the group C₃ (3)
+julia> Rs  = crystal(1,1,1,π/2,π/2,2π/3)    # a conventional coordinate system for hexagonal systems
 julia> ops′ = cartesianize.(ops, Ref(Rs))
-julia> neumann_relations(ops′, TD)
+julia> neumann_relations(ops′, N)
 10-element Vector{String}:
  "xxx = -yyx = -yxy = -xyy"
  "yxx = xyx = xxy = -yyy"
@@ -73,3 +78,5 @@ julia> neumann_relations(ops′, TD)
  "zzz"
  "zzx = zzy = zxz = zyz = xzz = yzz = 0"
 ```
+
+Additional information is available in the documentation of `neumann_relations` (accessible by typing `?neumann_relations` at the Julia REPL).
