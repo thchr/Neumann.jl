@@ -47,21 +47,21 @@ end
 function kleinmann_constraint(Nᵛ::Val{N}, ::Val{D}) where {N, D}
     # cover all relations of the kind ijk = ikj
     constraints = Vector{Vector{Float64}}()
-    q′ = 0
     for (q,ijks) in enumerate(CartesianIndices(ntuple(_->1:D, Nᵛ)))
         i = ijks[1]
-        pᵢ = (i-1)*D^(N-1)
         # iterate over the unique permutations of `jk…`
         jks_perms = unique!(sort!(collect(permutations(Tuple(ijks)[2:N])))) # TODO: allocates...
         for kjs in jks_perms
             # determine corresponding index of kj-permutation in column-representation
-            p = 1 + pᵢ + sum(1:length(kjs)) do idx
-                            (kjs[idx]-1)*D^(N-1-idx)
-                         end
-            q′ += 1 # row-index corresponding to the q′th constraint
-            push!(constraints, zeros(D^N))
-            constraints[q′][q] = 1.0
-            constraints[q′][p] += -1.0
+            p = i + sum(1:length(kjs)) do idx # iterating `ijks`/`kjs` first changes its
+                       (kjs[idx]-1)*D^idx     # first elemement a full cycle, then the next,
+                    end                       # and so on (i.e., "column major" iteration)
+            if q ≠ p # if equal, the equation is trivially satisfied
+                new_constraint = zeros(D^N)
+                new_constraint[q] = 1.0
+                new_constraint[p] = -1.0
+                push!(constraints, new_constraint)
+            end
         end
     end
     return mapreduce(transpose, vcat, constraints)
