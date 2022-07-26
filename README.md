@@ -47,8 +47,8 @@ At a more advanced level, we can consider e.g. the constraints imposed by 4-fold
 
 ```jl
 julia> using Crystalline
-julia> ops = generators("4", PointGroup{3}) # generators of the group C₄ (4)
-julia> neumann_relations(ops, N)
+julia> ops_C₄ = generators("4", PointGroup{3}) # generators of the group C₄ (4)
+julia> neumann_relations(opsC₄, N)
 8-element Vector{String}:
  "zxx = zyy"
  "zyx = -zxy"
@@ -62,10 +62,10 @@ julia> neumann_relations(ops, N)
 
 In the above example, the symmetry operations are already returned in a Cartesian basis. For several symmetry settings of interest, this is not usually the case. In such cases, we suggest that the generators returned by Crystalline first be converted to a Cartesian setting. As example, we may consider the case of 3-fold rotation symmetry ($C_3$ in Schoenflies notation; 3 in Hermann-Mauguinn notation):
 ```jl
-julia> ops = generators("3", PointGroup{3}) # generators of the group C₃ (3)
-julia> Rs  = crystal(1,1,1,π/2,π/2,2π/3)    # a conventional coordinate system for hexagonal systems
-julia> ops′ = cartesianize.(ops, Ref(Rs))
-julia> neumann_relations(ops′, N)
+julia> ops_C₃ = generators("3", PointGroup{3}) # generators of the group C₃ (3)
+julia> Rs = crystal(1,1,1,π/2,π/2,2π/3)        # a conventional coordinate system for hexagonal systems
+julia> ops_C₃′ = cartesianize.(ops_C₃, Ref(Rs))
+julia> neumann_relations(ops_C₃′, N)
 10-element Vector{String}:
  "xxx = -yyx = -yxy = -xyy"
  "yxx = xyx = xxy = -yyy"
@@ -80,3 +80,26 @@ julia> neumann_relations(ops′, N)
 ```
 
 Additional information is available in the documentation of `neumann_relations` (accessible by typing `?neumann_relations` at the Julia REPL).
+
+### Kleinmann symmetry
+
+For low-frequency harmonic generation, a response tensor may additionally exhibit [Kleinmann symmetry](https://en.wikipedia.org/wiki/Kleinman_symmetry). For e.g., second-harmonic generation, this implies that the response tensor exhibits the index permutation symmetry $A_{ijk}(\omega_3; \omega_1+\omega_2) = A_{ikj}(\omega_3; \omega_1+\omega_2)$ with $\omega_3 = \omega_1+\omega_2$ and $\omega_{1,2,3}$ small relative to all intrinsic frequency-scales of the material.
+More generally, we may consider Kleinmann-like permutation symmetries of the form $A_{ij\ldots k} = A_{i P(j\ldots k)}$ with $P(j\ldots k)$ denoting any permutation of the indices $j\ldots k$.
+
+To incorporate Kleinmann symmetry, the `kleinmann = true` keyword argument can be passed to `neumann_relations`.
+For instance, in $C_4$, the addition of Kleinmann symmetry reduces the number of independent components from 7 to 4:
+```jl
+julia> neumann_relations(ops_C₄, N; kleinmann = true)  # C₄ symmetry + Kleinmann symmetry
+```
+While, in $C_3$, Kleinmann symmetry reduces the number of independent components from 9 to 6:
+```jl
+julia> neumann_relations(ops_C₃′, N; kleinmann = true) # C₃ symmetry + Kleinmann symmetry
+7-element Vector{String}:
+ "xxx = -yyx = -yxy = -xyy"
+ "yxx = xyx = xxy = -yyy"
+ "zxx = zyy"
+ "xzx = yzy = xxz = yyz"
+ "yzx = -xzy = yxz = -xyz"
+ "zzz"
+ "zyx = zzx = zxy = zzy = zxz = zyz = xzz = yzz = 0"
+```
