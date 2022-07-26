@@ -17,9 +17,9 @@ Neumann's principle states that any macroscopic response tensor must transform i
 
 > <sup>[1]</sup> See e.g. the International Tables of Crystallography, Volume A (2016), [Section 3.2.2.1.1](https://onlinelibrary.wiley.com/iucr/itc/Ac/ch3o2v0001/sec3o2o2o1o1/).
 
-We consider response tensors $A_{ij\ldots k}$ of order $N$ connecting an induced response $w_i$ to the product of $N$ perturbations $\{v_j^{(1)}, \ldots, v_k^{(N)}\}$, i.e.,
+We consider response tensors $A_{ij\ldots k}$ of order $N$ connecting an induced response $w_i$ to the product of $N-1$ perturbations $\{v_j^{(1)}, \ldots, v_k^{(N-1)}\}$, i.e.:
 
-$$w_i = B_{ij\ldots k}v_j^{(1)}\cdots v_k^{(N)}.$$
+$$w_i = B_{ij\ldots k}v_j^{(1)}\cdots v_k^{(N-1)}.$$
 
 Under a symmetry operation $g$, the response tensor transforms according to:
 
