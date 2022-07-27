@@ -153,9 +153,9 @@ operations.
 The obtained relations are returned as a `Vector{String}`, with each element of this vector
 giving either:
 
-1. a free, nonzero component of the tensor (e.g., "xxx"),
-2. free, nonzero - but interrelated - components of the tensor (e.g., "xxx = yyy"),
-3. forbidden, zero components of the tensor (e.g., "xyz = xzy = 0").
+1. a free, nonzero component of the tensor (e.g., `"xxx"`),
+2. free, nonzero - but interrelated - components of the tensor (e.g., `"xxx = yyy"`),
+3. forbidden, zero components of the tensor (e.g., `"xyz = xzy = 0"`).
 
 Note that if the provided operators are not given in a Cartesian basis, the returned
 relations among tensor components will match the basis of the provided operators: we
@@ -172,10 +172,10 @@ generally recommend supplying operators in a Cartesian basis for ease of interpr
 - `rref_tol` (default, `1e-11`): the absolute tolerance used during row echelon reduction
   in sparsification. As the row echelon form is numerically unstable for larger matrices,
   it may be necessary to increase this tolerance for larger tensor orders. Set to `nothing`
-  to use a tolerance of zero.
+  to use the default tolerance of of RowEchelon.jl's `rref`.
 - `atol` (default, `1e-10`): the absolute tolerance used in assessing whether a term in a
   relation is considered vanishing or not (and similarly used to assess whether a term has
-  integer coefficient). Must be smaller than `rref_tol` (if not nothing).
+  integer coefficient). Must be greater than `rref_tol`.
 - `nullspace_kws` (default, empty): keyword arguments passed to `nullspace`.
 
 ## Examples
