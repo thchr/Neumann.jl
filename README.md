@@ -5,7 +5,7 @@
 This package provides a single function `neumann` which applies Neumann's principle to determine the forbidden and allowed components of a response tensor of arbitrary order, subject to a finite set of point group symmetry constraints.
 
 ## Installation
-The package can be installed via Julia's package prompt (entered by typing `]` at the REPL) and subsequently imported by calling:
+The package can be installed via [Julia](https://julialang.org/)'s package prompt (entered by typing `]` at the REPL) and subsequently imported by calling:
 ```jl
 pkg> add https://github.com/thchr/Neumann.jl
 julia> using Neumann
@@ -17,9 +17,9 @@ Neumann's principle states that any macroscopic response tensor must transform i
 
 > <sup>[1]</sup> See e.g. the International Tables of Crystallography, Volume A (2016), [Section 3.2.2.1.1](https://onlinelibrary.wiley.com/iucr/itc/Ac/ch3o2v0001/sec3o2o2o1o1/).
 
-We consider response tensors $A_{ij\ldots k}$ of order $N$ connecting an induced response $w_i$ to the product of $N$ perturbations $\{v_j^{(1)}, \ldots, v_k^{(N)}\}$, i.e.,
+We consider response tensors $A_{ij\ldots k}$ of order $N$ connecting an induced response $w_i$ to the product of $N-1$ perturbations $\{v_j^{(1)}, \ldots, v_k^{(N-1)}\}$, i.e.:
 
-$$w_i = B_{ij\ldots k}v_j^{(1)}\cdots v_k^{(N)}.$$
+$$w_i = B_{ij\ldots k}v_j^{(1)}\cdots v_k^{(N-1)}.$$
 
 Under a symmetry operation $g$, the response tensor transforms according to:
 
@@ -35,7 +35,7 @@ Neumann's principle simply requires that $gA_{ij\ldots k} = A_{ij\ldots k}$ for 
 
 Neumann.jl exports a single function, `neumann`, which satisfies the linear relations imposed by Neumann's principle by solving for the null space of the associated equation system. The null space imposes relations between certain components of the response tensor and forbids (i.e., requires vanishing value of) other components.
 
-As example, any odd-rank tensor vanishes completely under inversion symmetry:
+As an example, any odd-rank tensor vanishes completely under inversion symmetry:
 ```jl
 julia> using Neumann
 julia> inversion = [-1 0 0; 0 -1 0; 0 0 -1]
@@ -45,7 +45,7 @@ julia> neumann(inversion, N)
  "xxx = yxx = zxx = xyx = yyx = z" ⋯ 102 bytes ⋯ "yz = zyz = xzz = yzz = zzz = 0"
 ```
 
-At a more advanced level, we can consider e.g. the constraints imposed by 4-fold rotation symmetry ($C_4$ in Schoenflies notation; 4 in Hermann-Mauguinn notation). For convenience, we can load the relevant generators of the group from [Crystalline.jl](https://github.com/thchr/Crystalline.jl):
+At a more advanced level, we can consider e.g., the constraints imposed by 4-fold rotation symmetry ($C_4$ in Schoenflies notation; 4 in Hermann-Mauguinn notation). For convenience, we can load the relevant generators of the group from [Crystalline.jl](https://github.com/thchr/Crystalline.jl):
 
 ```jl
 julia> using Crystalline
