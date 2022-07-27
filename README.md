@@ -119,5 +119,5 @@ julia> neumann(ops_C₃′, N; kleinmann = true) # C₃ symmetry + Kleinmann sym
 [docs-stable-url]: https://thchr.github.io/Neumann.jl/stable
 [docs-dev-img]:    https://img.shields.io/badge/docs-dev-blue.svg
 [docs-dev-url]:    https://thchr.github.io/Neumann.jl/dev
-[coverage-img]:    https://codecov.io/gh/thchr/Neumann.jl/branch/master/graph/badge.svg
+[coverage-img]:    https://codecov.io/gh/thchr/Neumann.jl/branch/main/graph/badge.svg
 [coverage-url]:    https://codecov.io/gh/thchr/Neumann.jl
