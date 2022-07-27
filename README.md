@@ -16,15 +16,16 @@ julia> using Neumann
 
 ## Theory
 
-Neumann's principle states that any macroscopic response tensor must transform into itself under all microscopic (isogonal) point group symmetries $P$ of the associated physical system.<sup>[1]</sup> Equivalently, the response tensor must be invariant under the elements of the group $P$.
+Neumann's principle states that any physical property must exhibit at least the symmetry of the underlying system.<sup>[1]</sup>
+Equivalently, any macroscopic response tensor must transform into itself under all microscopic (isogonal) point group symmetries $P$ of the underlying system (i.e., the response tensor must be invariant under the elements of $P$).
 
-> <sup>[1]</sup> See e.g. the International Tables of Crystallography, Volume A (2016), [Section 3.2.2.1.1](https://onlinelibrary.wiley.com/iucr/itc/Ac/ch3o2v0001/sec3o2o2o1o1/).
+> <sup>[1]</sup> See e.g. S. Bhagavantam & P.V. Pantulu, *Generalized symmetry and Neumann’s principle*, [Proc. Indian Acad. Sci. **66**, 33 (1967)](https://doi.org/10.1007/BF03049406) or the [International Tables of Crystallography, Volume A (2016), Section 3.2.2.1.1](https://onlinelibrary.wiley.com/iucr/itc/Ac/ch3o2v0001/sec3o2o2o1o1/).
 
-We consider response tensors $A_{ij\ldots k}$ of order $N$ connecting an induced response $w_i$ to the product of $N-1$ perturbations $\{v_j^{(1)}, \ldots, v_k^{(N-1)}\}$, i.e.:
+This package considers response tensors $A_{ij\ldots k}$ of order $N$ connecting an induced response $w_i$ to the product of $N-1$ perturbations $\{v_j^{(1)}, \ldots, v_k^{(N-1)}\}$, i.e.:
 
 $$w_i = B_{ij\ldots k}v_j^{(1)}\cdots v_k^{(N-1)}.$$
 
-Under a symmetry operation $g$, the response tensor transforms according to:
+Under a symmetry operation $g$, such response tensors transform according to:
 
 $$
 gA_{ij\ldots k} = g_{il} g_{mj}^{-1} \cdots g_{nk}^{-1} A_{lm\ldots n}.
