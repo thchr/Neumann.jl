@@ -15,7 +15,7 @@ makedocs(
         canonical = "https://thchr.github.io/Neumann.jl"
     ),
     pages = [
-        "API"                   => "api.md"
+        "index" => "index.md"
     ]
 )
 

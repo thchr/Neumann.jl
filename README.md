@@ -1,6 +1,6 @@
 # Neumann.jl
 
-[![Documentation (stable)][docs-stable-img]][docs-stable-url] [![Build status][ci-status-img]][ci-status-url] [![Coverage][coverage-img]][coverage-url]
+[![Documentation (stable)][docs-stable-img]][docs-stable-url] [![Documentation (development)][docs-dev-img]][docs-dev-url] [![Build status][ci-status-img]][ci-status-url] [![Coverage][coverage-img]][coverage-url]
 
 This package provides a single function `neumann` which applies Neumann's principle to determine the forbidden and allowed components of a response tensor of arbitrary order, subject to a finite set of point group symmetry constraints.
 
@@ -117,5 +117,7 @@ julia> neumann(ops_C₃′, N; kleinmann = true) # C₃ symmetry + Kleinmann sym
 [ci-status-url]:   https://github.com/thchr/Neumann.jl/actions
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://thchr.github.io/Neumann.jl/stable
+[docs-dev-img]:    https://img.shields.io/badge/docs-dev-blue.svg
+[docs-dev-url]:    https://thchr.github.io/Neumann.jl/dev
 [coverage-img]:    https://codecov.io/gh/thchr/Neumann.jl/branch/master/graph/badge.svg
 [coverage-url]:    https://codecov.io/gh/thchr/Neumann.jl

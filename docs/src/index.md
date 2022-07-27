@@ -1,12 +1,11 @@
-# API
-
----
-
 ```@meta
 CurrentModule = Neumann
 ```
 
-## Exported methods
+# Neumann.jl
+
+Neumann.jl exports a single method `neumann`:
+
 ```@autodocs
 Modules = [Neumann]
 Private = false
