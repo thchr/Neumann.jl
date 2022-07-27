@@ -23,9 +23,9 @@ Equivalently, any macroscopic response tensor must transform into itself under a
 
 This package considers response tensors $A_{ij\ldots k}$ of order $N$ connecting an induced response $w_i$ to the product of $N-1$ perturbations $\{v_j^{(1)}, \ldots, v_k^{(N-1)}\}$, i.e.:
 
-$$w_i = B_{ij\ldots k}v_j^{(1)}\cdots v_k^{(N-1)}.$$
+$$w_i = A_{ij\ldots k}v_j^{(1)}\cdots v_k^{(N-1)}.$$
 
-Under a symmetry operation $g$, such response tensors transform according to:
+Under a symmetry operation $g$, the response tensor transforms according to:
 
 $$
 gA_{ij\ldots k} = g_{il} g_{mj}^{-1} \cdots g_{nk}^{-1} A_{lm\ldots n}.
