@@ -1,6 +1,9 @@
 # Neumann.jl
 
-[![Documentation (stable)][docs-stable-img]][docs-stable-url] [![Documentation (development)][docs-dev-img]][docs-dev-url] [![Build status][ci-status-img]][ci-status-url] [![Coverage][coverage-img]][coverage-url]
+<!-- # re-enable once registered
+[![Documentation (stable)][docs-stable-img]][docs-stable-url]
+-->
+[![Documentation (development)][docs-dev-img]][docs-dev-url] [![Build status][ci-status-img]][ci-status-url] [![Coverage][coverage-img]][coverage-url]
 
 This package provides a single function `neumann` which applies Neumann's principle to determine the forbidden and allowed components of a response tensor of arbitrary order, subject to a finite set of point group symmetry constraints.
 

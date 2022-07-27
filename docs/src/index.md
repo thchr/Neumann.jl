@@ -4,7 +4,7 @@ CurrentModule = Neumann
 
 # Neumann.jl
 
-Neumann.jl exports a single method `neumann`:
+Neumann.jl exports a single method:
 
 ```@autodocs
 Modules = [Neumann]
