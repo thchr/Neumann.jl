@@ -49,7 +49,7 @@ julia> neumann(inversion, N)
  "xxx = yxx = zxx = xyx = yyx = z" ⋯ 102 bytes ⋯ "yz = zyz = xzz = yzz = zzz = 0"
 ```
 
-At a more advanced level, we can consider e.g., the constraints imposed by 4-fold rotation symmetry ($C_4$ in Schoenflies notation; 4 in Hermann-Mauguin notation). For convenience, we can load the relevant generators of the group from [Crystalline.jl](https://github.com/thchr/Crystalline.jl):
+As a more complicated example, we can consider e.g., the constraints imposed by 4-fold rotation symmetry (4 in Hermann-Mauguin notation; $C_4$ in Schoenflies notation). For convenience, we can load the relevant generators of the group from [Crystalline.jl](https://github.com/thchr/Crystalline.jl):
 
 ```jl
 julia> using Crystalline
@@ -66,7 +66,7 @@ julia> neumann(ops_C₄, N)
  "xxx = yxx = xyx = yyx = zzx = x" ⋯ 23 bytes ⋯ "zzy = zxz = zyz = xzz = yzz = 0"
 ```
 
-In the above example, the symmetry operations are already returned in a Cartesian basis. For several symmetry settings of interest, this is not usually the case. In such cases, we suggest that the generators returned by Crystalline first be converted to a Cartesian setting. As an example, we may consider the case of 3-fold rotation symmetry ($C_3$ in Schoenflies notation; 3 in Hermann-Mauguin notation):
+In the present example, the symmetry operations are already returned in a Cartesian basis. For several symmetry settings of interest, this is not usually the case. In such cases, we suggest that the generators returned by Crystalline first be converted to a Cartesian setting. As an example, we may consider the case of 3-fold rotation symmetry (3 in Hermann-Mauguin notation; $C_3$ in Schoenflies notation):
 ```jl
 julia> ops_C₃ = generators("3", PointGroup{3}) # generators of the group C₃ (3)
 julia> Rs = crystal(1,1,1,π/2,π/2,2π/3)        # a conventional coordinate system for hexagonal systems
