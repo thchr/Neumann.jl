@@ -42,9 +42,9 @@ function neumann_constraint(g,
     return constraint_block
 end
 
-# TODO: Implement Kleinmann's symmetry. Seems it could generalize to any order tensor,
-#       assuming we interpret it as the "freedom" to shuffle the `N-1` last indices
-function kleinmann_constraint(Nᵛ::Val{N}, ::Val{D}) where {N, D}
+# Constraints for Kleinman symmetry, interpret it as the "freedom" to shuffle the `N-1`
+# last indices
+function kleinman_constraint(Nᵛ::Val{N}, ::Val{D}) where {N, D}
     # cover all relations of the kind ijk = ikj
     constraints = Vector{Vector{Float64}}()
     for (q,ijks) in enumerate(CartesianIndices(ntuple(_->1:D, Nᵛ)))
@@ -92,15 +92,15 @@ Return the matrix of relations used by `neumann`.
 """
 function neumann_matrix(ops,
                         Nᵛ::Val{N}=Val(3), Dᵛ::Val{D}=Val(3);
-                        kleinmann::Bool=false,
+                        kleinman::Bool=false,
                         sparsify::Bool=true,
                         rref_tol::Union{Nothing,Float64}=1e-11,
                         nullspace_kws...) where {N, D}
     constraint_eqs = mapfoldl(vcat, ops) do op
         neumann_constraint(op, Nᵛ, Dᵛ)
     end
-    if kleinmann
-        constraint_eqs = vcat(constraint_eqs, kleinmann_constraint(Nᵛ, Dᵛ))
+    if kleinman
+        constraint_eqs = vcat(constraint_eqs, kleinman_constraint(Nᵛ, Dᵛ))
     end
     A = nullspace(constraint_eqs; nullspace_kws...)
 
@@ -163,7 +163,7 @@ generally recommend supplying operators in a Cartesian basis for ease of interpr
 
 ## Keyword arguments `kws`
 
-- `kleinmann` (default, `false`): whether to incorporate Kleinmann's symmetry, i.e. whether
+- `kleinman` (default, `false`): whether to incorporate Kleinman symmetry, i.e. whether
   to enforce that `A[i,j,k,…] = A[i,perm(j,k,…)...]` with `perm(j,k,…)` denoting all unique
   permutations of `[j,k,…]`. Relevant e.g., to low-frequency second-harmonic generation.
 - `sparsify` (default, `true`): whether to attempt to sparsify relations between allowed

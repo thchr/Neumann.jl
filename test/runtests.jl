@@ -19,16 +19,16 @@ using LinearAlgebra
         end
     end
 
-    @testset "Kleinmann" begin
-        # second-rank tensor/matrix (Kleinmann symmetry has no effect)
+    @testset "Kleinman" begin
+        # second-rank tensor/matrix (Kleinman symmetry has no effect)
         for D in 1:4
-            rels₂ = neumann(I(D), 2, kleinmann=true)
+            rels₂ = neumann(I(D), 2, kleinman=true)
             @test length(rels₂) == D^2
             @test rels₂ == Neumann.xyz_sorting(Val(2), Val(D))
         end
         
-        # third-rank tensor (Kleinmann symmetry couples several components)
-        rels₃ = neumann(I(3), 3, kleinmann=true)
+        # third-rank tensor (Kleinman symmetry couples several components)
+        rels₃ = neumann(I(3), 3, kleinman=true)
         @test length(rels₃) == 18
     end
 
@@ -49,14 +49,14 @@ using LinearAlgebra
                           "zxx = zyy", "zyx = -zxy", "xzx = yzy", "yzx = -xzy",
                           "xxz = yyz", "yxz = -xyz", "zzz",
                           "zzx = zzy = zxz = zyz = xzz = yzz = 0"]
-        # C₄ + Kleinmann
-        klein_rels_C₄ = neumann(ops_C₄, 3; kleinmann=true)
+        # C₄ + Kleinman
+        klein_rels_C₄ = neumann(ops_C₄, 3; kleinman=true)
         @test klein_rels_C₄ == ["zxx = zyy", "xzx = yzy = xxz = yyz",
                                 "yzx = -xzy = yxz = -xyz", "zzz",
                                 "xxx = yxx = xyx = yyx = zyx = zzx = xxy = yxy = zxy = "*
                                 "xyy = yyy = zzy = zxz = zyz = xzz = yzz = 0"]
-        # C₃ + Kleinmann
-        klein_rels_C₃ = neumann(ops_C₃′, 3; kleinmann=true)
+        # C₃ + Kleinman
+        klein_rels_C₃ = neumann(ops_C₃′, 3; kleinman=true)
         @test klein_rels_C₃ == ["xxx = -yyx = -yxy = -xyy", "yxx = xyx = xxy = -yyy",
                                 "zxx = zyy", "xzx = yzy = xxz = yyz",
                                 "yzx = -xzy = yxz = -xyz", "zzz",

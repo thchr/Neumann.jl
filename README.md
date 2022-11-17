@@ -87,15 +87,15 @@ julia> neumann(ops_C₃′, N)
 
 Additional information is available in the documentation of `neumann` (accessible by typing `?neumann` at the Julia REPL).
 
-### Kleinmann symmetry
+### Kleinman symmetry
 
-For low-frequency harmonic generation, a response tensor may additionally exhibit [Kleinmann symmetry](https://en.wikipedia.org/wiki/Kleinman_symmetry). For e.g., second-harmonic generation, this implies that the response tensor exhibits the index permutation symmetry $A_{ijk}(\omega_3; \omega_1+\omega_2) = A_{ikj}(\omega_3; \omega_1+\omega_2)$ with $\omega_3 = \omega_1+\omega_2$ and $\omega_{1,2,3}$ assumed small relative to any intrinsic frequency scales of the material.
-More generally, we may consider Kleinmann-like permutation symmetries of the form $A_{ij\ldots k} = A_{i P(j\ldots k)}$ with $P(j\ldots k)$ denoting any permutation of the indices $j\ldots k$.
+For low-frequency harmonic generation, a response tensor may additionally exhibit [Kleinman symmetry](https://en.wikipedia.org/wiki/Kleinman_symmetry). For e.g., second-harmonic generation, this implies that the response tensor exhibits the index permutation symmetry $A_{ijk}(\omega_3; \omega_1+\omega_2) = A_{ikj}(\omega_3; \omega_1+\omega_2)$ with $\omega_3 = \omega_1+\omega_2$ and $\omega_{1,2,3}$ assumed small relative to any intrinsic frequency scales of the material.
+More generally, we may consider Kleinman-like permutation symmetries of the form $A_{ij\ldots k} = A_{i P(j\ldots k)}$ with $P(j\ldots k)$ denoting any permutation of the indices $j\ldots k$.
 
-To incorporate Kleinmann symmetry, the `kleinmann = true` keyword argument can be passed to `neumann`.
-For instance, in $C_4$, the addition of Kleinmann symmetry reduces the number of independent components from 7 to 4:
+To incorporate Kleinman symmetry, the `kleinman = true` keyword argument can be passed to `neumann`.
+For instance, in $C_4$, the addition of Kleinman symmetry reduces the number of independent components from 7 to 4:
 ```jl
-julia> neumann(ops_C₄, N; kleinmann = true)  # C₄ symmetry + Kleinmann symmetry
+julia> neumann(ops_C₄, N; kleinman = true)  # C₄ symmetry + Kleinman symmetry
 5-element Vector{String}:
  "zxx = zyy"
  "xzx = yzy = xxz = yyz"
@@ -103,9 +103,9 @@ julia> neumann(ops_C₄, N; kleinmann = true)  # C₄ symmetry + Kleinmann symme
  "zzz"
  "xxx = yxx = xyx = yyx = zyx = z" ⋯ 35 bytes ⋯ "zzy = zxz = zyz = xzz = yzz = 0"
 ```
-While, in $C_3$, Kleinmann symmetry reduces the number of independent components from 9 to 6:
+While, in $C_3$, Kleinman symmetry reduces the number of independent components from 9 to 6:
 ```jl
-julia> neumann(ops_C₃′, N; kleinmann = true) # C₃ symmetry + Kleinmann symmetry
+julia> neumann(ops_C₃′, N; kleinman = true) # C₃ symmetry + Kleinman symmetry
 7-element Vector{String}:
  "xxx = -yyx = -yxy = -xyy"
  "yxx = xyx = xxy = -yyy"
